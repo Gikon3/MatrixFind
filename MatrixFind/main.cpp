@@ -7,7 +7,7 @@
 #include "matrixFind.h"
 
 #define SEED        0
-#define N_TESTS     100
+#define N_TESTS     10000
 #define PRINT_ALL   0
 
 class Pool final
@@ -35,7 +35,7 @@ void print(Matrix<int>& m)
 {
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i)
-            std::cout << m[j][i] << " ";
+            std::cout << m[j][i] << "\t";
         std::cout << std::endl;
     }
 }
@@ -70,6 +70,9 @@ std::pair<int, int> test(Matrix<int>& m)
     std::pair info = { 0, 0 };
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i) {
+            std::pair tt = MatrixFind::find(m, m[j][i]);
+            if (tt == std::pair(-1, -1))
+                std::cout << m[j][i] << std::endl;
             info.first += MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
             ++info.second;
         }
@@ -88,6 +91,22 @@ int main()
     std::mt19937 engine(seed);
 
     std::pair info = { 0, 0 };
+
+    {
+        Matrix m = {
+            {2, 4, 5, 9, 11},
+            {3, 7, 8, 13, 22},
+            {10, 14, 17, 20, 25},
+            {15, 18, 21, 24, 27},
+            {16, 19, 23, 26, 28}
+        };
+        print(m);
+        const std::pair temp = test(m);
+        std::cout << temp.first << " / " << temp.second << std::endl << std::endl;
+        info.first += temp.first;
+        info.second += temp.second;
+    }
+
     for (int i = 0; i < N_TESTS; ++i) {
         Matrix m = genMatrix(engine);
         const std::pair temp = test(m);

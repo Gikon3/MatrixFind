@@ -82,21 +82,21 @@ namespace MatrixFind {
             bool status = false;
             if (value > m[middleDiag.row][middleDiag.col]) {
                 status = findImpl(m, value, findPos, { middleDiag.row + 1, pos0.col }, pos1);
-                if (!status)
-                    status = rowFindImpl(m, value, findPos, middleDiag.row, middleDiag.col + 1, pos1.col);
+                if (!status) {
+                    status = findImpl(m, value, findPos, { pos0.row, middleDiag.col + 1 }, { middleDiag.row, pos1.col });
+                }
             }
-
-            if (!status) {
+            else {
                 if (pos0.row == middleDiag.row)
-                    status = rowFindImpl(m, value, findPos, pos0.row, pos0.col, pos1.col);
+                    status = rowFindImpl(m, value, findPos, pos0.row, pos0.col, middleDiag.col - 1);
                 else
                     status = findImpl(m, value, findPos, pos0, { middleDiag.row - 1, pos1.col });
-            }
-            if (!status) {
-                if (!status && pos0.col == middleDiag.col)
-                    status = colFindImpl(m, value, findPos, pos0.col, middleDiag.row, pos1.row);
-                else
-                    status = findImpl(m, value, findPos, { middleDiag.row, pos0.col }, { pos1.row, middleDiag.col - 1 });
+                if (!status) {
+                    if (pos0.col == middleDiag.col)
+                        status = colFindImpl(m, value, findPos, pos0.col, pos0.row, middleDiag.row - 1);
+                    else
+                        status = findImpl(m, value, findPos, { middleDiag.row, pos0.col }, { pos1.row, middleDiag.col - 1 });
+                }
             }
 
             return status;
