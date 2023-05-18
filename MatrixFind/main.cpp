@@ -1,7 +1,35 @@
 ﻿#include <iostream>
 #include <utility>
+#include <chrono>
+#include <random>
+#include <set>
 #include "Matrix.h"
 #include "matrixFind.h"
+
+#define SEED        0
+#define N_TESTS     100
+#define PRINT_ALL   0
+
+class Pool final
+{
+public:
+    int operator()(int val)
+    {
+        if (data_.count(val) == 0) {
+            data_.insert(val);
+            return val;
+        }
+
+        do {
+            ++val;
+        } while (data_.count(val) != 0);
+        data_.insert(val);
+        return val;
+    }
+
+private:
+    std::set<int> data_;
+};
 
 void print(Matrix<int>& m)
 {
@@ -12,85 +40,66 @@ void print(Matrix<int>& m)
     }
 }
 
+Matrix<int> genMatrix(std::mt19937& engine)
+{
+    const int nColumns = 1 + engine() % 9;
+    const int nRows = 1 + engine() % 9;
+    Matrix<int> m(nColumns, nRows);
+    Pool pool;
+
+    m[0][0] = engine() % 30;
+    pool(m[0][0]);
+
+    for (int i = 1; i < nColumns; ++i)
+        m[0][i] = pool(m[0][i - 1] + 1 + engine() % 29);
+    for (int j = 1; j < nRows; ++j) 
+        m[j][0] = pool(m[j - 1][0] + 1 + engine() % 29);
+
+    for (int j = 1; j < nRows; ++j) {
+        for (int i = 1; i < nColumns; ++i) {
+            const int max = std::max(m[j - 1][i], m[j][i - 1]);
+            m[j][i] = pool(max + 1 + engine() % 29);
+        }
+    }
+
+    return m;
+}
+
 std::pair<int, int> test(Matrix<int>& m)
 {
     std::pair info = { 0, 0 };
-    print(m);
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i) {
             info.first += MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
             ++info.second;
         }
     }
-    std::cout << info.first << " / " << info.second << std::endl << std::endl;
+   
     return info;
 }
 
 int main()
 {
+#if SEED == 0
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+#else
+    auto seed = SEED;
+#endif
+    std::mt19937 engine(seed);
+
     std::pair info = { 0, 0 };
-    std::pair temp = { 0, 0 };
-
-    Matrix<int> m0 = { {0} };
-    temp = test(m0);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m1 = { {0, 1} };
-    temp = test(m1);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m2 = { {0}, {1} };
-    temp = test(m2);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m3 = { {0, 1, 2} };
-    temp = test(m3);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m4 = { {0}, {1}, {2} };
-    temp = test(m4);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m5 = { {0, 3}, {1, 4}, {2, 5} };
-    temp = test(m5);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m6 = { {0, 1, 2}, {3, 4, 5} };
-    temp = test(m6);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m7 = { {0, 1, 2, 3, 4, 5} };
-    temp = test(m7);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m8 = { {0}, {1}, {2}, {3}, {4}, {5} };
-    temp = test(m8);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m9 = { {0, 1, 2}, {3, 4, 5}, {6, 7, 8} };
-    temp = test(m9);
-    info.first += temp.first;
-    info.second += temp.second;
-
-    Matrix<int> m10 = { 
-        {10, 20, 30, 40, 60}, 
-        {11, 71, 72, 73, 77},
-        {12, 80, 81, 82, 91},
-        {13, 85, 90, 95, 100},
-        {96, 97, 98, 99, 101} };
-    temp = test(m10);
-    info.first += temp.first;
-    info.second += temp.second;
+    for (int i = 0; i < N_TESTS; ++i) {
+        Matrix m = genMatrix(engine);
+        const std::pair temp = test(m);
+#if PRINT_ALL == 1
+        print(m);
+        std::cout << temp.first << " / " << temp.second << std::endl << std::endl;
+#endif
+        info.first += temp.first;
+        info.second += temp.second;
+    }
 
     std::cout << std::endl <<
+        "Seed: " << seed << std::endl <<
         "Conclusion: " << info.first << " / " << info.second << std::endl;
 }
