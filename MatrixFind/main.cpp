@@ -7,7 +7,7 @@
 #include "matrixFind.h"
 
 #define SEED        0
-#define N_TESTS     10000
+#define N_TESTS     100000
 #define PRINT_ALL   0
 
 class Pool final
@@ -70,10 +70,10 @@ std::pair<int, int> test(Matrix<int>& m)
     std::pair info = { 0, 0 };
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i) {
-            std::pair tt = MatrixFind::find(m, m[j][i]);
-            if (tt == std::pair(-1, -1))
+            const bool result = MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
+            if (!result)
                 std::cout << m[j][i] << std::endl;
-            info.first += MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
+            info.first += static_cast<int>(result);
             ++info.second;
         }
     }

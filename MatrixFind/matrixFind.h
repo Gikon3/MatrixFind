@@ -101,13 +101,46 @@ namespace MatrixFind {
 
             return status;
         }
+
+        template<typename T>
+        static bool findSquareImpl(Matrix<T>& m, const T& value, Position& findPos, int pos0, int pos1)
+        {
+            const int middle = pos0 + (pos1 - pos0) / 2;
+
+            if (value == m[middle][middle]) {
+                findPos = { middle, middle };
+                return true;
+            }
+
+            if (value > m[middle][middle]) {
+                if (middle == pos0) {
+                    bool status = findImpl(m, value, findPos, { 0, middle + 1 }, {middle + 1, m.columnSize() - 1 });
+                    if (!status)
+                        status = findImpl(m, value, findPos, { middle + 1, 0 }, { m.rowSize() - 1, middle + 1 });
+                    return status;
+                }
+                return findSquareImpl(m, value, findPos, middle, pos1);
+            }
+
+            if (middle == pos0) {
+                bool status = findImpl(m, value, findPos, { 0, middle }, { middle - 1, m.columnSize() - 1 });
+                if (!status)
+                    status = findImpl(m, value, findPos, { middle, 0 }, { m.rowSize() - 1, middle - 1 });
+                return status;
+            }
+
+            return findSquareImpl(m, value, findPos, pos0, middle);
+        }
     }
 
     template<typename T>
     std::pair<int, int> find(Matrix<T>& m, const T& value)
     {
         not_use_::Position position = { -1, -1 };
-        not_use_::findImpl(m, value, position, { 0, 0 }, { m.rowSize() - 1, m.columnSize() - 1 });
+        if (m.rowSize() != m.columnSize())
+            not_use_::findImpl(m, value, position, { 0, 0 }, { m.rowSize() - 1, m.columnSize() - 1 });
+        else
+            not_use_::findSquareImpl(m, value, position, 0, m.rowSize() - 1);
         return { position.row, position.col };
     }
 }
