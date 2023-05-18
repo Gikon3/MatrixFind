@@ -22,11 +22,20 @@ template<typename T = int>
 class Matrix final
 {
 public:
+    using iterator = typename std::vector<T>::iterator;
+    using const_iterator = typename std::vector<T>::const_iterator;
+
+public:
     Matrix(int nColumns, int nRows);
     Matrix(std::initializer_list<std::initializer_list<T>> init);
     MatrixRow<T> operator[](int noRow);
+    iterator begin();
+    iterator end();
+    const_iterator cbegin();
+    const_iterator cend();
     int columnSize() const;
     int rowSize() const;
+    const_iterator getCit(int noRow, int noCol) const;
 
 private:
     std::vector<T> data_;
@@ -75,6 +84,29 @@ MatrixRow<T> Matrix<T>::operator[](int noRow)
 {
     return MatrixRow<T>(data_, nColumns_ * noRow);
 }
+template<typename T>
+typename Matrix<T>::iterator Matrix<T>::begin()
+{
+    return data_.begin();
+}
+
+template<typename T>
+typename Matrix<T>::iterator Matrix<T>::end()
+{
+    return data_.end();
+}
+
+template<typename T>
+typename Matrix<T>::const_iterator Matrix<T>::cbegin()
+{
+    return data_.cbegin();
+}
+
+template<typename T>
+typename Matrix<T>::const_iterator Matrix<T>::cend()
+{
+    return data_.cend();
+}
 
 template<typename T>
 int Matrix<T>::columnSize() const
@@ -86,4 +118,10 @@ template<typename T>
 int Matrix<T>::rowSize() const
 {
     return nRows_;
+}
+
+template<typename T>
+typename Matrix<T>::const_iterator Matrix<T>::getCit(int noRow, int noCol) const
+{
+    return data_.begin() + noRow * nColumns_ + noCol;
 }

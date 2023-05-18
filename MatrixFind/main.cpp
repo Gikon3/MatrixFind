@@ -70,10 +70,11 @@ std::pair<int, int> test(Matrix<int>& m)
     std::pair info = { 0, 0 };
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i) {
-            const bool result = MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
-            if (!result)
+            auto it = MatrixFind::find(m, m[j][i]);
+            if (it == m.cend() || *it != m[j][i])
                 std::cout << m[j][i] << std::endl;
-            info.first += static_cast<int>(result);
+            else
+                ++info.first;
             ++info.second;
         }
     }
