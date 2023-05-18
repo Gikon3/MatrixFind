@@ -11,6 +11,23 @@ namespace MatrixFind {
             int col;
         };
 
+        Position operator-(const Position& rhs)
+        {
+            return { -rhs.row, -rhs.col };
+        }
+        Position operator+(const Position& lhs, const Position& rhs)
+        {
+           return { lhs.row + rhs.row, lhs.col + rhs.col };
+        }
+        Position operator-(const Position& lhs, const Position& rhs)
+        {
+            return lhs + -rhs;
+        }
+        Position operator/(const Position& lhs, int k)
+        {
+            return { lhs.row / k, lhs.col / k };
+        }
+
         template<typename T>
         static bool rowFindImpl(Matrix<T>& m, const T& value, Position& findPos, int noRow, int noCol0, int noCol1)
         {
@@ -55,7 +72,7 @@ namespace MatrixFind {
             if (pos0.col == pos1.col)
                 return colFindImpl(m, value, findPos, pos0.col, pos0.row, pos1.row);
 
-            const Position middleDiag = { pos0.row + (pos1.row - pos0.row) / 2, pos0.col + (pos1.col - pos0.col) / 2 };
+            const Position middleDiag = pos0 + (pos1 - pos0) / 2;
 
             if (m[middleDiag.row][middleDiag.col] == value) {
                 findPos = middleDiag;

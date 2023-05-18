@@ -100,6 +100,7 @@ int main()
     }
 
     std::cout << std::endl <<
+        (info.first == info.second ? "OK" : "FAIL") << std::endl <<
         "Seed: " << seed << std::endl <<
-        "Conclusion: " << info.first << " / " << info.second << std::endl;
+        "Conclusions: " << info.first << " / " << info.second << std::endl;
 }
