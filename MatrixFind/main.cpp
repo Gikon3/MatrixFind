@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <utility>
 #include "Matrix.h"
+#include "matrixFind.h"
 
 void print(Matrix<int>& m)
 {
@@ -17,7 +18,7 @@ std::pair<int, int> test(Matrix<int>& m)
     print(m);
     for (int j = 0; j < m.rowSize(); ++j) {
         for (int i = 0; i < m.columnSize(); ++i) {
-            info.first += m.find(m[j][i]) == std::pair(j, i) ? 1 : 0;
+            info.first += MatrixFind::find(m, m[j][i]) == std::pair(j, i) ? 1 : 0;
             ++info.second;
         }
     }
@@ -89,4 +90,7 @@ int main()
     temp = test(m10);
     info.first += temp.first;
     info.second += temp.second;
+
+    std::cout << std::endl <<
+        "Conclusion: " << info.first << " / " << info.second << std::endl;
 }
